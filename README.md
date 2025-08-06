@@ -1,6 +1,8 @@
 # Neural LLM Training From Scratch
 
 A complete implementation for training GPT-style autoregressive transformer models from scratch, targeting 500M-1B parameter models for manageable experimentation.
+<img width="1555" height="946" alt="image" src="https://github.com/user-attachments/assets/8e79b108-088e-4460-aa53-4e79d137b619" />
+
 
 ## Features
 
