@@ -1,0 +1,38 @@
+# Text Generation Configuration
+generation:
+  # Sampling parameters
+  temperature: 0.8         # Sampling temperature (higher = more random)
+  top_k: 50               # Top-k filtering (0 = disabled)
+  top_p: 0.9              # Nucleus sampling threshold (0 = disabled)
+  repetition_penalty: 1.1  # Penalty for repeating tokens
+  
+  # Generation length
+  max_new_tokens: 256      # Maximum tokens to generate
+  min_length: 10          # Minimum generation length
+  
+  # Special tokens
+  pad_token_id: 0         # Padding token ID
+  eos_token_id: 1         # End of sequence token ID
+  bos_token_id: null      # Beginning of sequence token ID (null = no BOS)
+  
+  # Stopping criteria
+  stop_strings: []        # Strings that stop generation
+  early_stopping: true   # Stop when EOS token is generated
+  
+  # Sampling strategies
+  do_sample: true         # Use sampling vs greedy decoding
+  num_beams: 1           # Beam search width (1 = no beam search)
+  
+  # Generation modes
+  strategy: "sample"      # "sample", "greedy", "beam_search", "contrastive"
+  
+# Batch generation settings
+batch_generation:
+  batch_size: 4           # Number of prompts to generate simultaneously
+  return_prompt: false    # Include prompt in output
+  
+# Interactive generation  
+interactive:
+  show_progress: true     # Show generation progress bar
+  stream_output: true     # Stream tokens as they're generated
+  color_output: true      # Color code different parts of output

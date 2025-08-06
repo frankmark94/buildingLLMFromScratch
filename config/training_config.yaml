@@ -1,0 +1,51 @@
+# Training Configuration
+training:
+  # Basic training settings
+  batch_size: 8             # Per-device batch size
+  gradient_accumulation_steps: 16  # Effective batch size = batch_size * grad_accum * n_gpus
+  max_steps: 100000         # Maximum training steps
+  eval_interval: 2000       # Steps between evaluations
+  save_interval: 5000       # Steps between checkpoints
+  log_interval: 100         # Steps between logging
+  
+  # Learning rate and optimization  
+  learning_rate: 6e-4       # Peak learning rate
+  weight_decay: 0.1         # AdamW weight decay
+  beta1: 0.9               # AdamW beta1
+  beta2: 0.95              # AdamW beta2
+  grad_clip: 1.0           # Gradient clipping norm
+  
+  # Learning rate schedule
+  warmup_steps: 2000       # Warmup steps
+  lr_decay_steps: 100000   # Steps for cosine decay  
+  min_lr: 6e-5             # Minimum learning rate (10% of peak)
+  
+  # Mixed precision training
+  use_amp: true            # Use automatic mixed precision
+  compile_model: false     # Use torch.compile (PyTorch 2.0+)
+  
+  # Distributed training
+  distributed: false       # Enable DDP
+  local_rank: 0           # Local rank for DDP
+  
+  # Checkpointing
+  resume_from_checkpoint: null  # Path to checkpoint to resume from
+  save_total_limit: 3      # Maximum number of checkpoints to keep
+  
+  # Evaluation
+  eval_steps: 200          # Number of eval steps per evaluation
+  eval_batch_size: 8       # Batch size for evaluation
+  
+  # Data loading
+  num_workers: 4           # Number of DataLoader workers
+  pin_memory: true         # Pin memory for faster GPU transfer
+  
+  # Logging and monitoring
+  use_wandb: true          # Use Weights & Biases logging
+  wandb_project: "neural-llm" # W&B project name
+  wandb_run_name: null     # W&B run name (auto-generated if null)
+  log_grad_norm: false     # Log gradient norms
+  
+  # Performance
+  torch_compile: false     # Use torch.compile for speed
+  flash_attention: false   # Use FlashAttention if available

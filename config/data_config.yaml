@@ -1,0 +1,75 @@
+# Data Configuration
+data:
+  # Dataset sources
+  datasets:
+    - name: "the_pile"
+      enabled: true
+      subset: "all"          # Can specify subset like "pile-cc", "wikipedia", etc.
+      split: "train"
+      streaming: false       # Stream data or download fully
+    
+    - name: "common_crawl" 
+      enabled: false
+      subset: null
+      split: "train"
+      streaming: true
+      
+    - name: "wikipedia"
+      enabled: true
+      subset: "20231101.en"  # Date and language
+      split: "train" 
+      streaming: false
+  
+  # Data processing
+  preprocessing:
+    min_length: 50           # Minimum text length to keep
+    max_length: 100000       # Maximum text length to keep
+    dedupe: true            # Remove duplicate texts
+    filter_languages: ["en"] # Keep only these languages (null for all)
+    clean_text: true        # Apply text cleaning
+    
+  # Tokenization
+  tokenizer:
+    type: "bpe"             # "bpe", "sentencepiece", or "custom"
+    vocab_size: 50304       # Target vocabulary size
+    special_tokens:
+      - "<|endoftext|>"     # End of document token
+      - "<|pad|>"           # Padding token
+      - "<|unk|>"           # Unknown token
+    
+    # BPE specific settings
+    min_frequency: 2        # Minimum token frequency
+    show_progress: true     # Show tokenizer training progress
+    
+  # Data splitting  
+  train_split: 0.95         # Fraction for training
+  val_split: 0.05          # Fraction for validation
+  test_split: 0.0          # Fraction for testing
+  
+  # Data loading
+  block_size: 1024         # Sequence length for training
+  stride: 512              # Stride for sliding window (overlap)
+  
+  # Caching and storage
+  cache_dir: "./data/cache" # Directory for cached datasets
+  data_dir: "./data/processed" # Directory for processed data
+  force_download: false    # Force re-download of datasets
+  
+  # Output format
+  output_format: "bin"     # "bin", "jsonl", "parquet" 
+  chunk_size: 100000       # Records per output file
+  
+# Custom dataset configuration
+custom_datasets:
+  # Example: Add your own dataset
+  my_dataset:
+    path: "./data/my_texts.jsonl"  # Path to your dataset
+    text_column: "text"            # Column containing text
+    enabled: false                 # Enable this dataset
+
+# Advanced data settings  
+advanced:
+  seed: 42                 # Random seed for reproducibility
+  shuffle: true            # Shuffle training data
+  drop_last: true          # Drop incomplete batches
+  prefetch_factor: 2       # DataLoader prefetch factor
