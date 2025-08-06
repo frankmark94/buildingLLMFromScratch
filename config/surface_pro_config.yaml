@@ -1,0 +1,63 @@
+# Optimized configuration for Surface Pro with 32GB RAM
+# This assumes your actual Surface Pro (not the current detected environment)
+
+model:
+  n_layers: 6               # 6 transformer layers
+  n_heads: 8                # 8 attention heads  
+  n_embd: 512               # 512 hidden dimensions
+  vocab_size: 32000         # 32K vocabulary (good balance)
+  block_size: 256           # 256 token context length
+  dropout: 0.1
+  bias: true
+  gradient_checkpointing: true  # Save memory during training
+  use_flash_attention: false    # Not available on CPU
+  
+training:
+  # Memory-efficient training settings
+  batch_size: 1
+  gradient_accumulation_steps: 32   # Effective batch size = 32
+  max_steps: 10000                  # 10K steps for initial training
+  eval_interval: 500
+  save_interval: 1000
+  log_interval: 50
+  
+  # Optimization settings
+  learning_rate: 3e-4
+  weight_decay: 0.1
+  beta1: 0.9
+  beta2: 0.95
+  warmup_steps: 500
+  min_lr: 3e-5
+  
+  # Memory and performance
+  use_amp: true                     # Mixed precision
+  compile_model: false              # Avoid compilation overhead
+  num_workers: 2                    # Conservative data loading
+  pin_memory: false                 # Better for CPU training
+  
+  # Distributed training (disabled for single machine)
+  distributed: false
+  
+  # Logging
+  use_wandb: false                  # Disable by default to avoid setup
+  log_grad_norm: false
+
+data:
+  # Conservative data settings
+  preprocessing:
+    min_length: 20
+    max_length: 1000
+    dedupe: true
+    clean_text: true
+  
+  # Smaller datasets for faster iteration
+  train_split: 0.95
+  val_split: 0.05
+  block_size: 256                   # Match model block size
+  chunk_size: 5000                  # Smaller chunks
+
+# This configuration creates a ~20M parameter model that:
+# - Uses approximately 1-3GB RAM during training
+# - Can train overnight on CPU (6-12 hours)  
+# - Generates coherent text
+# - Perfect for learning and experimentation

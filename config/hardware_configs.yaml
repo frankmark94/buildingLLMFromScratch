@@ -1,0 +1,114 @@
+# Hardware-specific configurations for different setups
+
+# Surface Pro / Consumer Laptop Configuration (32GB RAM, integrated/basic GPU)
+consumer_laptop:
+  model:
+    n_layers: 6               # Much smaller model
+    n_heads: 8                # Fewer attention heads
+    n_embd: 512               # Smaller embedding dimension
+    vocab_size: 32000         # Smaller vocabulary
+    block_size: 256           # Shorter context length
+    dropout: 0.1
+    bias: true
+    gradient_checkpointing: true  # Save memory during training
+    
+  training:
+    batch_size: 1             # Very small batches
+    gradient_accumulation_steps: 32  # Simulate larger batches
+    max_steps: 10000          # Shorter training
+    eval_interval: 500
+    save_interval: 1000
+    log_interval: 50
+    
+    # Memory-efficient settings
+    use_amp: true             # Mixed precision to save memory
+    compile_model: false      # Avoid torch.compile overhead
+    num_workers: 2            # Fewer data loading workers
+    pin_memory: false         # Don't pin memory on CPU
+    
+    # Conservative learning settings
+    learning_rate: 3e-4       # Lower learning rate
+    warmup_steps: 500
+    weight_decay: 0.1
+    
+  data:
+    # Use smaller dataset subsets
+    preprocessing:
+      min_length: 20
+      max_length: 1000        # Shorter texts
+    block_size: 256           # Match model block size
+    chunk_size: 10000         # Smaller chunks
+
+# Development/Testing Configuration (Even smaller for quick iteration)
+dev_tiny:
+  model:
+    n_layers: 4
+    n_heads: 4
+    n_embd: 256
+    vocab_size: 16000
+    block_size: 128
+    dropout: 0.1
+    bias: true
+    gradient_checkpointing: true
+    
+  training:
+    batch_size: 1
+    gradient_accumulation_steps: 8
+    max_steps: 1000           # Very short for testing
+    eval_interval: 100
+    save_interval: 200
+    log_interval: 10
+    use_amp: true
+    learning_rate: 1e-3
+    warmup_steps: 100
+    
+  data:
+    preprocessing:
+      min_length: 10
+      max_length: 500
+    block_size: 128
+
+# Mid-range GPU Configuration (RTX 3060/4060, 16-24GB system RAM)
+mid_range_gpu:
+  model:
+    n_layers: 12
+    n_heads: 12
+    n_embd: 768
+    vocab_size: 50304
+    block_size: 512
+    dropout: 0.1
+    bias: true
+    use_flash_attention: true
+    gradient_checkpointing: false
+    
+  training:
+    batch_size: 4
+    gradient_accumulation_steps: 8
+    max_steps: 50000
+    eval_interval: 1000
+    save_interval: 2500
+    use_amp: true
+    learning_rate: 6e-4
+    warmup_steps: 1000
+
+# High-end Configuration (Original plan - requires high-end hardware)
+high_end:
+  model:
+    n_layers: 12
+    n_heads: 12
+    n_embd: 768
+    vocab_size: 50304
+    block_size: 1024
+    dropout: 0.1
+    bias: true
+    use_flash_attention: true
+    
+  training:
+    batch_size: 8
+    gradient_accumulation_steps: 16
+    max_steps: 100000
+    eval_interval: 2000
+    save_interval: 5000
+    use_amp: true
+    learning_rate: 6e-4
+    warmup_steps: 2000

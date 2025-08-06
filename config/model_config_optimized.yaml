@@ -1,0 +1,9 @@
+model:
+  bias: true
+  block_size: 128
+  dropout: 0.1
+  gradient_checkpointing: true
+  n_embd: 256
+  n_heads: 4
+  n_layers: 4
+  vocab_size: 16000
