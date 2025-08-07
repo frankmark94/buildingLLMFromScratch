@@ -105,7 +105,7 @@ The hardware detection will:
 ### 🎯 **Generation & Inference**
 - **Sampling Strategies**: Top-k, top-p (nucleus), temperature scaling
 - **Interactive Generation**: Command-line interface, batch processing
-- **Fine-tuning**: Task-specific adaptation with custom datasets
+- **Fine-tuning**: Task-specific adaptation with custom datasets (classification, instruction tuning)
 - **Model Serving**: FastAPI integration for deployment
 
 ## ⚡ **Surface Pro Quick Start** 
@@ -174,11 +174,16 @@ python data/preprocess.py
 ### Step 4: Training
 ```bash
 # Train with hardware-optimized settings
-python scripts/train.py --config config/model_config_optimized.yaml --training-config config/training_config_optimized.yaml
+python scripts/train.py --config config/surface_pro_config.yaml
 
-# Or use pre-made configurations
-python scripts/train.py --config config/surface_pro_config.yaml  # For laptops
-python scripts/train.py --config config/hardware_configs.yaml --profile high_end  # For GPUs
+# Or use hardware profiles
+python scripts/train.py --config config/model_config.yaml --profile high_end
+
+# Distributed training (multi-GPU)
+python scripts/distributed_train.py --config config/model_config.yaml --gpus 2 --profile high_end
+
+# Resume from checkpoint
+python scripts/train.py --config config/surface_pro_config.yaml --resume checkpoints/checkpoint_epoch_5.pt
 ```
 
 ### Step 5: Text Generation
@@ -188,6 +193,33 @@ python scripts/generate.py --model checkpoints/best_model.pt --prompt "The futur
 
 # Interactive generation
 python scripts/interactive_generate.py --model checkpoints/best_model.pt
+
+# API server for production use
+python scripts/serve_api.py --model checkpoints/best_model.pt --port 8000
+```
+
+### Step 6: Model Evaluation
+```bash
+# Comprehensive evaluation
+python scripts/evaluate.py --model checkpoints/best_model.pt --config config/evaluation_config.yaml
+
+# Quick perplexity check
+python scripts/evaluate.py --model checkpoints/best_model.pt --skip-generation --skip-downstream
+
+# Generation quality only
+python scripts/evaluate.py --model checkpoints/best_model.pt --skip-perplexity --skip-downstream
+```
+
+### Step 7: Fine-tuning (Optional)
+```bash
+# Prepare your dataset for fine-tuning
+python scripts/prepare_fine_tune_data.py your_data.txt --output fine_tune_data.jsonl
+
+# Fine-tune on your custom dataset
+python scripts/fine_tune.py --model checkpoints/best_model.pt --dataset fine_tune_data.jsonl
+
+# Fine-tune for classification tasks
+python scripts/fine_tune.py --model checkpoints/best_model.pt --dataset classification_data.jsonl --task-type classification
 ```
 
 ## 📁 **Project Structure**
@@ -213,19 +245,50 @@ buildingLLMFromScratch/
 │   ├── trainer.py                # Main training loop
 │   ├── optimizer.py              # Optimizers and schedulers
 │   ├── mixed_precision.py        # AMP and memory optimization
-│   └── checkpointing.py          # Model saving/loading
+│   ├── checkpointing.py          # Model saving/loading
+│   └── fine_tuner.py             # Fine-tuning system
 ├── 📁 evaluation/                # Model evaluation
 │   ├── perplexity.py            # Language modeling metrics
 │   ├── benchmarks.py            # Downstream task evaluation
 │   └── metrics.py               # Comprehensive metrics
+├── 📁 inference/                 # Text generation and serving
+│   ├── generator.py              # Text generator with sampling
+│   ├── interactive.py            # Interactive generation interface
+│   └── api.py                    # FastAPI server for deployment
 ├── 📁 scripts/                  # Main execution scripts
-│   ├── train.py                 # Training script
-│   ├── generate.py              # Text generation
-│   ├── hardware_setup.py        # Hardware optimization
-│   └── compare_configs.py       # Configuration comparison
+│   ├── train.py                 # Main training script
+│   ├── distributed_train.py     # Multi-GPU/multi-node training
+│   ├── evaluate.py              # Comprehensive evaluation
+│   ├── fine_tune.py             # Fine-tuning script
+│   ├── prepare_fine_tune_data.py # Data preparation for fine-tuning
+│   ├── generate.py              # Command-line text generation
+│   ├── interactive_generate.py  # Interactive generation session
+│   ├── serve_api.py             # API server launcher
+│   └── hardware_setup.py        # Hardware optimization
+├── 📁 tests/                   # Unit tests
+│   ├── test_model.py            # Model architecture tests
+│   ├── test_tokenizer.py        # Tokenizer tests
+│   ├── test_generation.py       # Text generation tests
+│   └── run_tests.py             # Test runner
 └── 📁 docs/                     # Documentation
     ├── hardware_guide.md        # Hardware requirements guide
+    ├── DEVELOPMENT.md           # Development and testing guide
     └── CLAUDE.md                # Development guidance
+```
+
+## 🧪 **Testing**
+
+```bash
+# Run all tests
+python tests/run_tests.py
+
+# Run specific test modules
+python -m unittest tests.test_model
+python -m unittest tests.test_tokenizer
+python -m unittest tests.test_generation
+
+# Quick test to verify setup
+python tests/run_tests.py --failfast
 ```
 
 ## 🎯 **Real-World Examples**
@@ -293,6 +356,21 @@ custom_datasets:
     path: "./my_texts.jsonl"
     text_column: "content"  
     enabled: true
+```
+
+### Fine-tuning Examples
+```bash
+# Domain adaptation (e.g., medical texts)
+python scripts/prepare_fine_tune_data.py medical_texts.txt --output medical_data.jsonl --chunk-size 800
+python scripts/fine_tune.py --model checkpoints/best_model.pt --dataset medical_data.jsonl --config config/fine_tuning_config.yaml --preset domain_adaptation
+
+# Sentiment classification
+python scripts/prepare_fine_tune_data.py reviews.csv --output sentiment_data.jsonl --text-column review --label-column sentiment
+python scripts/fine_tune.py --model checkpoints/best_model.pt --dataset sentiment_data.jsonl --task-type classification --preset classification
+
+# Instruction tuning
+python scripts/prepare_fine_tune_data.py instructions.jsonl --output instruction_data.jsonl --instruction-template "Instruction: {instruction}\nInput: {input}\nOutput: {output}"
+python scripts/fine_tune.py --model checkpoints/best_model.pt --dataset instruction_data.jsonl --preset instruction_tuning
 ```
 
 ## 🤔 **FAQ**

@@ -1,0 +1,191 @@
+# Evaluation Configuration
+# Comprehensive evaluation settings for neural LLM models
+
+# Data Configuration for Perplexity Evaluation
+data:
+  data_dir: "data"
+  eval_batch_size: 8
+  num_workers: 2
+  loader_params:
+    max_length: 512
+    stride: 256
+
+# Generation Quality Evaluation
+generation:
+  # Generation parameters
+  max_new_tokens: 100
+  temperature: 0.8
+  top_k: 50
+  top_p: 0.9
+  repetition_penalty: 1.1
+  
+  # Test prompts for generation quality
+  test_prompts:
+    - "The future of artificial intelligence is"
+    - "Climate change affects the planet by"
+    - "The most important invention in history was"
+    - "In the year 2050, technology will"
+    - "The key to happiness is"
+    - "Science helps us understand"
+    - "The greatest challenge facing humanity is"
+    - "Education should focus on"
+    - "The role of government should be"
+    - "Art and creativity are important because"
+    - "Technology has changed the way we"
+    - "The best way to learn is"
+    - "Environmental protection requires"
+    - "The future of work will be"
+    - "Space exploration is important because"
+
+# Downstream Task Evaluation
+downstream_tasks:
+  # Text classification task
+  sentiment_classification:
+    type: "classification"
+    dataset_path: "eval_data/sentiment_test.jsonl"
+    text_column: "text"
+    label_column: "label"
+    num_classes: 2
+    batch_size: 16
+    
+  # Text completion task
+  text_completion:
+    type: "completion"
+    dataset_path: "eval_data/completion_test.jsonl"
+    prompt_column: "prompt"
+    completion_column: "completion"
+    max_new_tokens: 50
+    batch_size: 8
+    
+  # Question answering task
+  question_answering:
+    type: "qa"
+    dataset_path: "eval_data/qa_test.jsonl"
+    question_column: "question"
+    context_column: "context"
+    answer_column: "answer"
+    max_new_tokens: 100
+    batch_size: 4
+
+# Metric Configuration
+metrics:
+  # Language modeling metrics
+  perplexity:
+    enabled: true
+    splits: ["validation", "test"]
+    
+  # Generation quality metrics
+  generation_quality:
+    enabled: true
+    repetition_penalty_threshold: 0.1
+    diversity_ngram: 4
+    
+  # Text quality metrics
+  text_quality:
+    enabled: true
+    bleu: true
+    rouge: true
+    meteor: false  # Requires additional dependencies
+    
+  # Model analysis metrics
+  model_analysis:
+    enabled: true
+    attention_analysis: false  # Requires additional computation
+    token_frequency_analysis: true
+    calibration_analysis: true
+
+# Benchmark Datasets
+benchmarks:
+  # Enable/disable specific benchmarks
+  hellaswag:
+    enabled: false
+    path: "eval_data/hellaswag"
+    
+  winogrande:
+    enabled: false
+    path: "eval_data/winogrande"
+    
+  arc_easy:
+    enabled: false
+    path: "eval_data/arc_easy"
+    
+  arc_challenge:
+    enabled: false
+    path: "eval_data/arc_challenge"
+
+# Output Configuration
+output:
+  save_generations: true
+  save_attention_maps: false
+  save_detailed_metrics: true
+  verbose_logging: true
+  
+# Hardware Configuration
+hardware:
+  max_memory_usage: 0.8  # Use up to 80% of available memory
+  batch_size_auto_scale: true
+  use_mixed_precision: true
+
+# Evaluation Presets
+presets:
+  # Quick evaluation for development
+  quick:
+    data:
+      eval_batch_size: 4
+    generation:
+      max_new_tokens: 50
+    metrics:
+      generation_quality:
+        enabled: true
+      text_quality:
+        enabled: false
+      model_analysis:
+        enabled: false
+    downstream_tasks: {}
+    
+  # Full evaluation for research
+  comprehensive:
+    data:
+      eval_batch_size: 8
+    generation:
+      max_new_tokens: 200
+    metrics:
+      generation_quality:
+        enabled: true
+      text_quality:
+        enabled: true
+      model_analysis:
+        enabled: true
+    
+  # Production evaluation
+  production:
+    data:
+      eval_batch_size: 16
+    generation:
+      max_new_tokens: 100
+    metrics:
+      perplexity:
+        enabled: true
+      generation_quality:
+        enabled: true
+      text_quality:
+        enabled: false
+      model_analysis:
+        enabled: false
+    output:
+      save_generations: false
+      verbose_logging: false
+
+# Example Evaluation Commands
+examples:
+  basic_perplexity: |
+    python scripts/evaluate.py --model checkpoints/best_model.pt --skip-generation --skip-downstream
+    
+  generation_quality: |
+    python scripts/evaluate.py --model checkpoints/best_model.pt --skip-perplexity --skip-downstream --prompts-file eval_prompts.txt
+    
+  comprehensive: |
+    python scripts/evaluate.py --model checkpoints/best_model.pt --config config/evaluation_config.yaml
+    
+  quick_test: |
+    python scripts/evaluate.py --model checkpoints/best_model.pt --config config/evaluation_config.yaml --preset quick

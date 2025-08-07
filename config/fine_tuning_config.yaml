@@ -1,0 +1,96 @@
+# Fine-tuning Configuration
+# Configuration for fine-tuning pre-trained models on custom datasets
+
+# Model and Data Paths
+model_path: "checkpoints/best_model.pt"  # Path to pre-trained model
+dataset_path: "data/fine_tune_data.jsonl"  # Path to fine-tuning dataset
+tokenizer_path: "data/tokenizer"  # Path to tokenizer
+output_dir: "fine_tuned_models"  # Output directory
+
+# Task Configuration
+task_type: "text_generation"  # Options: text_generation, classification, qa
+num_labels: null  # Number of labels for classification (set if task_type=classification)
+
+# Data Configuration
+text_column: "text"  # Column name containing text data
+label_column: null  # Column name containing labels (for classification)
+train_split: 0.9  # Ratio of data to use for training
+max_seq_length: 512  # Maximum sequence length
+
+# Training Hyperparameters
+learning_rate: 1.0e-5  # Lower than pre-training for stability
+num_epochs: 3  # Number of training epochs
+batch_size: 4  # Batch size per device
+gradient_accumulation_steps: 8  # Gradient accumulation steps
+warmup_ratio: 0.1  # Warmup ratio
+
+# Regularization
+weight_decay: 0.01  # Weight decay for regularization
+max_grad_norm: 1.0  # Gradient clipping threshold
+dropout: 0.1  # Dropout rate
+
+# Memory Optimization
+use_amp: true  # Use automatic mixed precision
+gradient_checkpointing: true  # Enable gradient checkpointing
+freeze_embeddings: false  # Freeze embedding layers
+freeze_layers: null  # List of layer indices to freeze (e.g., [0, 1, 2])
+
+# Logging and Checkpointing
+logging_steps: 100  # Log every N steps
+eval_steps: 500  # Evaluate every N steps
+save_steps: 1000  # Save checkpoint every N steps
+
+# Fine-tuning Presets
+presets:
+  # Quick fine-tuning for testing
+  quick:
+    learning_rate: 2.0e-5
+    num_epochs: 1
+    batch_size: 2
+    gradient_accumulation_steps: 16
+    eval_steps: 100
+    save_steps: 200
+  
+  # Domain adaptation
+  domain_adaptation:
+    learning_rate: 5.0e-6
+    num_epochs: 5
+    freeze_embeddings: true
+    freeze_layers: [0, 1]  # Freeze first two layers
+    warmup_ratio: 0.05
+  
+  # Instruction tuning
+  instruction_tuning:
+    learning_rate: 1.0e-5
+    num_epochs: 3
+    max_seq_length: 1024
+    batch_size: 2
+    gradient_accumulation_steps: 16
+  
+  # Classification fine-tuning
+  classification:
+    task_type: "classification"
+    learning_rate: 2.0e-5
+    num_epochs: 5
+    batch_size: 8
+    gradient_accumulation_steps: 4
+    max_seq_length: 256
+
+# Example Dataset Formats
+dataset_examples:
+  # Text generation format
+  text_generation:
+    - text: "The future of artificial intelligence is..."
+    - text: "Climate change affects the planet by..."
+  
+  # Classification format
+  classification:
+    - text: "This movie was absolutely fantastic!"
+      label: 1  # Positive
+    - text: "I didn't enjoy this film at all."
+      label: 0  # Negative
+  
+  # Instruction tuning format
+  instruction_tuning:
+    - text: "Instruction: Summarize this paragraph.\nInput: [paragraph text]\nOutput: [summary]"
+    - text: "Instruction: Translate to French.\nInput: Hello world\nOutput: Bonjour le monde"
