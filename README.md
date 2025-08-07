@@ -108,7 +108,37 @@ The hardware detection will:
 - **Fine-tuning**: Task-specific adaptation with custom datasets
 - **Model Serving**: FastAPI integration for deployment
 
-## 🚀 **Quick Start Guide**
+## ⚡ **Surface Pro Quick Start** 
+*Get running in 30 minutes, training overnight*
+
+```bash
+# 1. Clone and setup
+git clone https://github.com/frankmark94/buildingLLMFromScratch.git
+cd buildingLLMFromScratch
+pip install -r requirements.txt
+
+# 2. Auto-configure for your Surface Pro
+python scripts/hardware_setup.py
+
+# 3. Download small dataset (10 minutes)
+python data/download_datasets.py --dataset wikipedia --limit 10000
+
+# 4. Train tokenizer (5 minutes)
+python data/tokenizer.py
+
+# 5. Preprocess data (10 minutes)  
+python data/preprocess.py
+
+# 6. Start training (6-12 hours, perfect for overnight!)
+python scripts/train.py --config config/surface_pro_config.yaml
+
+# 7. Generate text with your model
+python scripts/generate.py --model checkpoints/best_model.pt --prompt "The future of AI is"
+```
+
+**Result:** 35M parameter model that can complete sentences, basic reasoning, domain-specific generation!
+
+## 🚀 **Full Quick Start Guide**
 
 ### Step 1: Installation
 ```bash
